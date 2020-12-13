@@ -1,0 +1,4 @@
+/course_segmentation/raw_images/*
+/images_generator/image_data/*
+/course_segmentation/.ipynb_checkpoints/
+course_segmentation/__pycache__/
