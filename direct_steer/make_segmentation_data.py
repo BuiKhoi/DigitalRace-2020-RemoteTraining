@@ -1,40 +1,53 @@
 import os
 import cv2
+import time
 import numpy as np
 from shutil import rmtree
-from keras.models import model_from_json
+import albumentations as A
+from keras.models import model_from_json, load_model
+
+from generate_images import get_files
+
+transform = A.Compose([
+    A.RandomBrightnessContrast(p=0.7),
+    A.RandomGamma(p=0.7),
+    A.CLAHE(p=0.5),
+    A.RGBShift(r_shift_limit=20, g_shift_limit=20, b_shift_limit=20, p=1),
+])
+
+def millis():
+    return int(round(time.time() * 1000))
 
 IMAGE_FOLDER = './images_data/'
 TARGET_FOLDER = './segmented_data/'
 
+CLEAR_DATA = False
+
 COURSE_MODEL = './models/models/unet_course.json'
 COURSE_MODEL_WEIGHT = './models/weights/unet_course.h5'
+
+GENERATED_FILE = './generated_images.txt'
 
 BATCH_SIZE = 10
 
 def get_all_images(folder):
-    results = []
-    for f in os.listdir(folder):
-        if os.path.isdir(folder + f):
-            results.extend(get_all_images(folder + f + '/'))
-        else:
-            if any([e in f for e in ['png', 'jpg']]):
-                results.append(folder + f)
-    return results
+    return get_files(folder, GENERATED_FILE)
 
 if __name__ == '__main__':
     # get all images
     images = get_all_images(IMAGE_FOLDER)
     
-    # clear destination folder
-    if os.path.exists(TARGET_FOLDER):
-        rmtree(TARGET_FOLDER)
-    os.mkdir(TARGET_FOLDER)
+    if CLEAR_DATA:
+        # clear destination folder
+        if os.path.exists(TARGET_FOLDER):
+            rmtree(TARGET_FOLDER)
+        os.mkdir(TARGET_FOLDER)
 
     # load course model
     with open(COURSE_MODEL, 'r') as model_file:
         course_model = model_from_json(model_file.read())
     course_model.load_weights(COURSE_MODEL_WEIGHT)
+    # course_model = load_model(COURSE_MODEL_WEIGHT, compile=False)
     course_model.summary()
 
     print('Processing on {} images'.format(len(images)))
@@ -56,7 +69,16 @@ if __name__ == '__main__':
         else:
             predictions = course_model.predict(np.array(image_batch))
             for pred, img, name in zip(predictions, image_batch, image_names):
-                img = cv2.bitwise_and(img, img, mask=(pred[:, :, 0] * 255).astype('uint8'))
-                cv2.imwrite(TARGET_FOLDER + name, img[:, :, (2, 1, 0)])
+                new_img = cv2.bitwise_and(img, img, mask=(pred[:, :, 0] * 255).astype('uint8'))
+                mil = name.split('x')[0]
+                name = name.replace(mil, str(millis()))
+                cv2.imwrite(TARGET_FOLDER + name, new_img[:, :, (2, 1, 0)])
+
+                for i in range(2):
+                    transformed = transform(image=img)
+                    mil = name.split('x')[0]
+                    name = name.replace(mil, str(millis()))
+                    new_img = cv2.bitwise_and(transformed['image'], transformed['image'], mask=(pred[:, :, 0] * 255).astype('uint8'))
+                    cv2.imwrite(TARGET_FOLDER + name, new_img[:, :, (2, 1, 0)])
             image_batch = []
             image_names = []

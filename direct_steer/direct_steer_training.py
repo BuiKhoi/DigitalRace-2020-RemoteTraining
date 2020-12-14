@@ -19,10 +19,10 @@ TRAIN_FOLDER = './train_data/train/'
 VAL_FOLDER = './train_data/val/'
 
 LOAD_PRETRAINED = True
-PRETRAINED_PATH = './checkpoints/weights/steer_direct_1212.h5'
+PRETRAINED_PATH = './checkpoints/weights/steer_direct_1412.2.h5'
 
-WEIGHT_SAVE_PATH = './checkpoints/weights/steer_direct_1212.2.h5'
-MODEL_SAVE_PATH = './checkpoints/models/steer_direct_1212.2.json'
+WEIGHT_SAVE_PATH = './checkpoints/weights/steer_direct_1412.h5'
+MODEL_SAVE_PATH = './checkpoints/models/steer_direct_1412.json'
 
 INPUT_SHAPE = (128, 128)
 
