@@ -1,4 +1,8 @@
 /course_segmentation/raw_images/*
 /images_generator/image_data/*
-/course_segmentation/.ipynb_checkpoints/
-course_segmentation/__pycache__/
+*/.ipynb_checkpoints/
+*/__pycache__/
+/direct_steer/images_data/*
+/direct_steer/segmented_data/*
+/direct_steer/train_data/*
+direct_steer/old_images/*
