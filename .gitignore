@@ -5,4 +5,7 @@
 /direct_steer/images_data/*
 /direct_steer/segmented_data/*
 /direct_steer/train_data/*
-direct_steer/old_images/*
+/direct_steer/old_images/*
+/steer_regression/image_data/*
+/steer_regression/segmented_images/*
+/steer_regression/train_data/*
